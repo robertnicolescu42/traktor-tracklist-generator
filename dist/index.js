@@ -25,35 +25,41 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(require("fs"));
 const jsdom_1 = require("jsdom");
+const readlineSync = __importStar(require("readline-sync"));
 const parseHtmlFile = (filePath) => {
-    var _a, _b, _c, _d;
-    const trackData = [];
-    const data = fs.readFileSync(filePath, "utf8");
-    const dom = new jsdom_1.JSDOM(data);
-    const document = dom.window.document;
-    const table = document.querySelector("table.border");
-    if (!table) {
-        console.error("Table not found");
+    var _a, _b, _c;
+    try {
+        const data = fs.readFileSync(filePath, "utf8");
+        const dom = new jsdom_1.JSDOM(data);
+        const document = dom.window.document;
+        const table = document.querySelector("table.border");
+        if (!table) {
+            console.error("Table not found");
+            return null;
+        }
+        const trackData = [];
+        const rows = table.querySelectorAll("tr");
+        // Skip the first row (header row)
+        for (let i = 1; i < rows.length; i++) {
+            const cells = rows[i].querySelectorAll("td");
+            if (cells.length >= 10) {
+                // Adjust this condition based on the number of columns
+                const artist = ((_a = cells[3].textContent) === null || _a === void 0 ? void 0 : _a.trim()) || "";
+                const title = ((_b = cells[2].textContent) === null || _b === void 0 ? void 0 : _b.trim()) || "";
+                const startTime = ((_c = cells[26].textContent) === null || _c === void 0 ? void 0 : _c.trim()) || "";
+                trackData.push({
+                    artist: artist,
+                    title: title,
+                    startTime: startTime,
+                });
+            }
+        }
         return trackData;
     }
-    const rows = table.querySelectorAll("tr");
-    // Skip the first row (header row)
-    for (let i = 1; i < rows.length; i++) {
-        const cells = rows[i].querySelectorAll("td");
-        if (cells.length >= 10) {
-            // Adjust this condition based on the number of columns
-            const artist = ((_a = cells[3].textContent) === null || _a === void 0 ? void 0 : _a.trim()) || "";
-            const title = ((_b = cells[2].textContent) === null || _b === void 0 ? void 0 : _b.trim()) || "";
-            const track = ((_c = cells[6].textContent) === null || _c === void 0 ? void 0 : _c.trim()) || "";
-            const startTime = ((_d = cells[26].textContent) === null || _d === void 0 ? void 0 : _d.trim()) || "";
-            trackData.push({
-                artist: artist,
-                title: title,
-                startTime: startTime,
-            });
-        }
+    catch (error) {
+        console.error("Error reading file:", error);
+        return null;
     }
-    return trackData;
 };
 const createtracklist = (trackData) => {
     // Convert start times to timestamps
@@ -63,16 +69,7 @@ const createtracklist = (trackData) => {
         const timestamp = new Date(track.startTime).getTime();
         const elapsedTime = timestamp - firstStartTime;
         // Convert milliseconds to hh:mm:ss format
-        const hours = Math.floor(elapsedTime / (1000 * 60 * 60))
-            .toString()
-            .padStart(2, "0");
-        const minutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60))
-            .toString()
-            .padStart(2, "0");
-        const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000)
-            .toString()
-            .padStart(2, "0");
-        const formattedTime = `${hours}:${minutes}:${seconds}`;
+        const formattedTime = formatTime(elapsedTime);
         let artist = track.artist;
         let title = track.title;
         // If artist is missing and title contains '-'
@@ -87,7 +84,32 @@ const createtracklist = (trackData) => {
         console.log(`${formattedTime} ${artist} - ${title}`);
     });
 };
-// Replace 'path/to/your/file.html' with the actual path to your HTML file
-const filePath = "src/assets/history.html";
-let parsedHtml = parseHtmlFile(filePath);
-createtracklist(parsedHtml);
+const formatTime = (milliseconds) => {
+    const pad = (num) => num.toString().padStart(2, "0");
+    const hours = pad(Math.floor(milliseconds / (1000 * 60 * 60)));
+    const minutes = pad(Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60)));
+    const seconds = pad(Math.floor((milliseconds % (1000 * 60)) / 1000));
+    return `${hours}:${minutes}:${seconds}`;
+};
+// Prompt user for file path
+const filePath = readlineSync
+    .question("Enter the path to the HTML file: ")
+    .trim();
+console.log(filePath);
+const cleanFilePath = (filePath) => {
+    // Check if the first character is a question mark
+    if (filePath.charAt(0) === "?") {
+        // Remove the first character
+        filePath = filePath.substring(1);
+    }
+    // Remove anything after ".html" including ".html"
+    const htmlIndex = filePath.indexOf(".html");
+    if (htmlIndex !== -1) {
+        filePath = filePath.substring(0, htmlIndex + 5); // +5 to include ".html"
+    }
+    return filePath;
+};
+const parsedHtml = parseHtmlFile(cleanFilePath(filePath));
+if (parsedHtml) {
+    createtracklist(parsedHtml);
+}
