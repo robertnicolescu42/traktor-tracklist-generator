@@ -1,0 +1,19 @@
+{
+  "name": "traktor-tracklist-generator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/jsdom": "^21.1.7",
+    "@types/node": "^20.14.2"
+  },
+  "dependencies": {
+    "jsdom": "^24.1.0"
+  }
+}
