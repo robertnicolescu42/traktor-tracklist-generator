@@ -2,6 +2,7 @@
   "name": "traktor-tracklist-generator",
   "version": "1.0.0",
   "main": "index.js",
+  "bin": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
