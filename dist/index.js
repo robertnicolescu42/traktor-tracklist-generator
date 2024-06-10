@@ -66,6 +66,8 @@ exports.parseHtmlFile = parseHtmlFile;
 const createtracklist = (trackData) => {
     // Convert start times to timestamps
     const firstStartTime = new Date(trackData[0].startTime).getTime();
+    // Create the tracklist content
+    let tracklistContent = "";
     // Calculate time elapsed since the beginning
     trackData.forEach((track) => {
         const timestamp = new Date(track.startTime).getTime();
@@ -82,9 +84,16 @@ const createtracklist = (trackData) => {
             // If artist is missing and title does not contain '-'
             artist = "N/A";
         }
-        // Print the formatted time along with the artist and title
-        console.log(`${formattedTime} ${artist} - ${title}`);
+        // Append the track information to the tracklist content
+        tracklistContent += `${formattedTime} ${artist} - ${title}\n`;
     });
+    // Get the current date and time
+    const currentDateTime = new Date().toISOString().replace(/:/g, "-");
+    // Define the file name with the current date and time
+    const fileName = `tracklist_${currentDateTime}.txt`;
+    // Write the tracklist content to the file
+    fs.writeFileSync(fileName, tracklistContent);
+    console.log(`Tracklist exported to ${fileName}`);
 };
 exports.createtracklist = createtracklist;
 const formatTime = (milliseconds) => {

@@ -1,7 +1,7 @@
 {
   "name": "traktor-tracklist-generator",
   "version": "1.0.0",
-  "description": "Description of your package",
+  "description": "CLI tool to parse a Traktor HTML History file and create a tracklist",
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js"
