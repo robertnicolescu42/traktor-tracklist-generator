@@ -23,6 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createtracklist = exports.parseHtmlFile = void 0;
 const fs = __importStar(require("fs"));
 const jsdom_1 = require("jsdom");
 const readlineSync = __importStar(require("readline-sync"));
@@ -61,6 +62,7 @@ const parseHtmlFile = (filePath) => {
         return null;
     }
 };
+exports.parseHtmlFile = parseHtmlFile;
 const createtracklist = (trackData) => {
     // Convert start times to timestamps
     const firstStartTime = new Date(trackData[0].startTime).getTime();
@@ -84,6 +86,7 @@ const createtracklist = (trackData) => {
         console.log(`${formattedTime} ${artist} - ${title}`);
     });
 };
+exports.createtracklist = createtracklist;
 const formatTime = (milliseconds) => {
     const pad = (num) => num.toString().padStart(2, "0");
     const hours = pad(Math.floor(milliseconds / (1000 * 60 * 60)));
@@ -91,12 +94,12 @@ const formatTime = (milliseconds) => {
     const seconds = pad(Math.floor((milliseconds % (1000 * 60)) / 1000));
     return `${hours}:${minutes}:${seconds}`;
 };
-// Prompt user for file path
 const filePath = readlineSync
     .question("Enter the path to the HTML file: ")
     .trim();
 console.log(filePath);
 const cleanFilePath = (filePath) => {
+    // Fix for weird readlineSync behavior where it randomly adds a question mark at the beginning of the file path and then doubles it?
     // Check if the first character is a question mark
     if (filePath.charAt(0) === "?") {
         // Remove the first character
@@ -109,7 +112,7 @@ const cleanFilePath = (filePath) => {
     }
     return filePath;
 };
-const parsedHtml = parseHtmlFile(cleanFilePath(filePath));
+const parsedHtml = (0, exports.parseHtmlFile)(cleanFilePath(filePath));
 if (parsedHtml) {
-    createtracklist(parsedHtml);
+    (0, exports.createtracklist)(parsedHtml);
 }

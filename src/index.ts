@@ -8,7 +8,7 @@ interface TrackData {
   startTime: string;
 }
 
-const parseHtmlFile = (filePath: string): TrackData[] | null => {
+export const parseHtmlFile = (filePath: string): TrackData[] | null => {
   try {
     const data = fs.readFileSync(filePath, "utf8");
     const dom = new JSDOM(data);
@@ -47,7 +47,7 @@ const parseHtmlFile = (filePath: string): TrackData[] | null => {
   }
 };
 
-const createtracklist = (trackData: TrackData[]): void => {
+export const createtracklist = (trackData: TrackData[]): void => {
   // Convert start times to timestamps
   const firstStartTime = new Date(trackData[0].startTime).getTime();
 
